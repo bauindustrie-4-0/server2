@@ -3,11 +3,13 @@ var http = require('http'),
     sse = require('sse'),
     bodyParser = require('body-parser'),
     process = require("process"),
+    cors = require('cors'),
     app = express(),
 
     port = process.env.PORT ? process.env.PORT : 8000,
     docRoot = './public';
 
+app.use(cors());
 app.use(express.static('public'));
 app.use(bodyParser.json());
 
