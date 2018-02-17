@@ -51,9 +51,12 @@ sseServer.on('connection', function (client) {
     })
 });
 
+// Vergleicht zwei Sets anhand der ID-keys ihrer werte
 function eqSet(as, bs) {
     if (as.size !== bs.size) return false;
-    for (var a of as) if (!bs.has(a)) return false;
+    for (var a of as) {
+        if(![...bs].some(el => el.id === a.id)) return false;
+    }
     return true;
 }
 
@@ -65,6 +68,7 @@ app.post('/visible_beacons', function (req, res) {
         return mappings[beacon.id] !== undefined
     }));
 
+    // TODO: nur IDs vergleichen
     if(!eqSet(relevantBeacons, visibleBeacons)) {
         visibleBeacons = relevantBeacons;
         updateClients()
