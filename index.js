@@ -34,7 +34,7 @@ let mappings = {
     ]*/
 };
 
-let visibleBeacons = [];
+let visibleBeacons = new Set();
 const clients = new Set();
 
 
@@ -51,12 +51,25 @@ sseServer.on('connection', function (client) {
     })
 });
 
+function eqSet(as, bs) {
+    if (as.size !== bs.size) return false;
+    for (var a of as) if (!bs.has(a)) return false;
+    return true;
+}
+
 
 // POST method route
 app.post('/visible_beacons', function (req, res) {
-    visibleBeacons = req.body;
-    updateClients()
+    let reportedBeacons = req.body;
+    let relevantBeacons = new Set(reportedBeacons.filter(beacon => {
+        return mapping[beacon.id] !== undefined
+    }));
 
+    if(!eqSet(relevantBeacons, visibleBeacons)) {
+        visibleBeacons = relevantBeacons;
+        updateClients()
+    }
+    
     res.json({"success": true})
 })
 
@@ -72,7 +85,7 @@ function updateClients() {
 function sendCurrentData(client) {
 
     let data = visibleBeacons.filter(b => {
-        return b.rssi > -50 && mappings[b.id] !== undefined
+        return b.rssi > -50
     }).map(b => {
         return {
             "beacon": b,
