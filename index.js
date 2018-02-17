@@ -57,8 +57,11 @@ app.post('/visible_beacons', function (req, res) {
     visibleBeacons = req.body;
     updateClients()
 
-    res.send({"success": true})
+    res.json({"success": true})
 })
+
+
+
 
 function updateClients() {
     clients.forEach(client => {
@@ -81,22 +84,25 @@ function sendCurrentData(client) {
 }
 
 
+
+
 app.get("/visible_beacons", (req, res) => {
-    return visibleBeacons;
+    res.json(visibleBeacons);
 })
 
 
 // Für die Webseite
 app.get("/beacons", (req, res) => {
-    return Object.keys(mappings);
+    res.json(Object.keys(mappings));
 })
 
 app.get("/beacons/:id", (req, res, id) => {
-    return mappings[id];
+    res.json(mappings[id]);
 })
 
-httpServer.listen(port);
 
+httpServer.listen(port);
+console.log("Server is running!")
 
 /*setInterval(() => {
     visibleBeacons = [{"id": "eins"}, {"id": "zwei"}]
