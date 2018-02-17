@@ -151,11 +151,7 @@
     </style>
 </head>
 
-<body>
-<div class="watch">
-    <img src="img/uhrinnen.png" class="deko">
-    <div class="content" id="messages">
-        <!--<div class="message show">
+<!--<div class="message show">
             <img src="img/types/driller.svg">
             <div class="text">
                 Needs maintenance
@@ -173,6 +169,12 @@
                 Kritisch: 46 °C
             </div>
         </div>-->
+
+<body>
+<div class="watch">
+    <img src="img/uhrinnen.png" class="deko">
+    <div class="content" id="messages">
+
 
 
         <div class="spacer" id="spacer">&nbsp;</div>
@@ -202,6 +204,7 @@
 
         evtSource.onmessage = function (e) {
             let data = JSON.parse(e.data);
+            console.log("Daten erhalten:", data);
 
             removeAll();
 
@@ -223,7 +226,7 @@
     s()
 
     function g() {
-        post("visible_beacons", [{"id": "eins"}, {"id": "zwei"}])
+        post("visible_beacons", [{"id": "CA:90:6C:4D:1D:2D", "rssi": -10}, {"id": "zwei"}])
     }
 
 
@@ -232,11 +235,14 @@
         var myNode = document.getElementById("messages");
         while (myNode.firstChild && myNode.firstChild.id !== "spacer") {
             const child = myNode.firstChild;
-            child.classList.delete("show");
-            setTimeout(() => {
-                myNode.removeChild(child)
-            }, 2000)
-            myNode.removeChild(myNode.firstChild);
+            if(child.nodeType === Node.ELEMENT_NODE) {
+                child.classList.delete("show");
+                setTimeout(() => {
+                    myNode.removeChild(child)
+                }, 2000)
+            }else {
+                myNode.removeChild(myNode.firstChild);
+            }
         }
     }
 
@@ -255,7 +261,6 @@
 
         let spacer = document.getElementById("spacer");
         list.insertBefore(newMessage, spacer);
-        console.log("eingesetzt")
         setTimeout(function() {
             newMessage.className = newMessage.className + " show";
         }, 100);

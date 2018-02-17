@@ -44,6 +44,7 @@ const sseServer = new sse(httpServer, {path: "/beaconinfo_stream"});
 
 sseServer.on('connection', function (client) {
     clients.add(client);
+    sendCurrentData(client);
 
     client.on('close', function () {
         clients.delete(client);
@@ -60,18 +61,23 @@ app.post('/visible_beacons', function (req, res) {
 })
 
 function updateClients() {
-    clients.forEach(c => {
-        let data = visibleBeacons.filter(b => {
-            return b.rssi > -50 && mappings[b.id] !== undefined
-        }).map(b => {
-            return {
-                "beacon": b,
-                "content": mappings[b.id]
-            };
-        })
-
-        c.send(JSON.stringify(data))
+    clients.forEach(client => {
+        sendCurrentData(client)
     })
+}
+
+function sendCurrentData(client) {
+
+    let data = visibleBeacons.filter(b => {
+        return b.rssi > -50 && mappings[b.id] !== undefined
+    }).map(b => {
+        return {
+            "beacon": b,
+            "content": mappings[b.id]
+        };
+    })
+
+    client.send(JSON.stringify(data))
 }
 
 
