@@ -62,7 +62,7 @@ function eqSet(as, bs) {
 app.post('/visible_beacons', function (req, res) {
     let reportedBeacons = req.body;
     let relevantBeacons = new Set(reportedBeacons.filter(beacon => {
-        return mapping[beacon.id] !== undefined
+        return mappings[beacon.id] !== undefined
     }));
 
     if(!eqSet(relevantBeacons, visibleBeacons)) {
