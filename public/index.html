@@ -53,7 +53,7 @@
         .watch .content {
             top: 340px;
             left: 339px;
-            /*transition: all 400ms;*/
+            transition: all 500ms;
             color: white;
             font-size: 30px;
             width: 530px;
@@ -67,16 +67,15 @@
             overflow-y: scroll;
 
             padding: 80px;
-            /*opacity: 0;*/
+            opacity: 0;
             background-color: rgba(0, 0, 0, 0.9);
             perspective: 1000px;
         }
 
-        .watch:hover .content, .content.show {
+        /*.watch:hover .content, */
+        .content.show {
             opacity: 1;
         }
-
-
 
         /*@keyframes slidein {
             from {
@@ -90,10 +89,6 @@
             }
         }*/
 
-
-
-
-
         .message {
             background-color: rgba(50, 50, 50, 1);
             padding: 10px;
@@ -101,7 +96,7 @@
             margin-top: 10px;
             font-family: sans-serif;
             display: flex;
-            position:relative;
+            position: relative;
 
             justify-content: flex-start;
             align-items: center;
@@ -126,26 +121,22 @@
             padding-top: 80px;
         }
 
-
-
         .message {
             opacity: 0;
-            transform-origin:0 0;
-            height:0;
-            min-height:0;
+            transform-origin: 0 0;
+            height: 0;
+            min-height: 0;
             /*transform: rotateX(-90deg);*/
-            transition: all 1s; /*cubic-bezier(.36,-0.64,.34,1.76);*/
+            transition: all 0.2s; /*cubic-bezier(.36,-0.64,.34,1.76);*/
         }
 
         .message.show {
             opacity: 1;
-            height: 100px;
-            min-height:64px;
+            height: 64px;
+            min-height: 64px;
             /*transform: none;*/
-            transition: all 1s; /*cubic-bezier(.36,-0.64,.34,1.76);*/
+            transition: all 0.2s; /*cubic-bezier(.36,-0.64,.34,1.76);*/
         }
-
-
 
 
     </style>
@@ -176,7 +167,6 @@
     <div class="content" id="messages">
 
 
-
         <div class="spacer" id="spacer">&nbsp;</div>
     </div>
     <img src="img/uhraussen.png" class="deko">
@@ -199,6 +189,8 @@
         })
     }
 
+    let content = document.getElementById("messages");
+
     function s() {
         const evtSource = new EventSource('/beaconinfo_stream');
 
@@ -206,16 +198,20 @@
             let data = JSON.parse(e.data);
             console.log("Daten erhalten:", data);
 
-            removeAll();
-
-            data.forEach(group => {
-                group.content.forEach(notification => {
-                    let type = notification.type;
-
-                    let text = notification.content;
-
-                    add(type, text);
-                })
+            removeAll().then(() => {
+                if (!content.classList.contains("show") && data.length > 0) {
+                    content.classList.add("show")
+                    setTimeout(() => {
+                        renderData(data)
+                    }, 1000)
+                } else if (content.classList.contains("show") && data.length === 0) {
+                    renderData(data)
+                    setTimeout(() => {
+                        content.classList.remove("show")
+                    }, 10)
+                } else {
+                    renderData(data)
+                }
 
             })
 
@@ -223,27 +219,54 @@
         }
     }
 
+    function renderData(data) {
+        let counter = 0;
+        data.forEach(group => {
+            group.content.forEach(notification => {
+                setTimeout(() => {
+                    let type = notification.type;
+
+                    let text = notification.content;
+
+                    add(type, text);
+                }, counter * 300)
+                counter++;
+
+            })
+
+        })
+    }
+
     s()
 
     function g() {
         post("visible_beacons", [{"id": "CA:90:6C:4D:1D:2D", "rssi": -10}, {"id": "zwei"}])
     }
-
+    function x() {
+        post("visible_beacons", [])
+    }
 
 
     function removeAll() {
         var myNode = document.getElementById("messages");
-        while (myNode.firstChild && myNode.firstChild.id !== "spacer") {
-            const child = myNode.firstChild;
-            if(child.nodeType === Node.ELEMENT_NODE) {
-                child.classList.delete("show");
-                setTimeout(() => {
-                    myNode.removeChild(child)
-                }, 2000)
-            }else {
-                myNode.removeChild(myNode.firstChild);
+        const promises = []
+        for (child of myNode.children) {
+            const theChild = child;
+            if (theChild.id !== "spacer") {
+                if (theChild.nodeType === Node.ELEMENT_NODE) {
+                    theChild.classList.remove("show");
+                    promises.push(new Promise((resolve, reject) => {
+                        setTimeout(() => {
+                            myNode.removeChild(theChild)
+                            resolve();
+                        }, 1000)
+                    }));
+                } else {
+                    myNode.removeChild(theChild);
+                }
             }
         }
+        return Promise.all(promises)
     }
 
     function add(image, message) {
@@ -251,7 +274,7 @@
         var newMessage = document.createElement('div');
         newMessage.className = "message"
         var img = document.createElement("img");
-        img.src = "/img/types/"+image+".svg";
+        img.src = "/img/types/" + image + ".svg";
         var text = document.createElement("div");
         text.className = "text"
         text.innerHTML = message
@@ -261,7 +284,7 @@
 
         let spacer = document.getElementById("spacer");
         list.insertBefore(newMessage, spacer);
-        setTimeout(function() {
+        setTimeout(function () {
             newMessage.className = newMessage.className + " show";
         }, 100);
     }
