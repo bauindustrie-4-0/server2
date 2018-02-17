@@ -34,7 +34,7 @@ let mappings = {
     ]*/
 };
 
-let visibleBeacons = new Set();
+let visibleBeacons = new Map();
 const clients = new Set();
 
 
@@ -60,22 +60,60 @@ function eqSet(as, bs) {
     return true;
 }
 
+var min_rssi = -55;
+var maxCounter = 3;
+
 
 // POST method route
 app.post('/visible_beacons', function (req, res) {
-    let reportedBeacons = req.body;
-    let relevantBeacons = new Set(reportedBeacons.filter(beacon => {
-        return mappings[beacon.id] !== undefined
-    }));
 
-    // TODO: nur IDs vergleichen
-    if(!eqSet(relevantBeacons, visibleBeacons)) {
-        visibleBeacons = relevantBeacons;
+    let mapChanged = false;
+
+    let reportedBeacons = new Map();
+    for(let beacon of req.body)
+        reportedBeacons.set(beacon.id, beacon);
+
+    for(const [key, value] of visibleBeacons.entries()) {
+        if(reportedBeacons[key] === undefined) {
+            if(value.counter === undefined)
+                value.counter = 0;
+            value.counter++;
+            if(value.counter > maxCounter) {
+                visibleBeacons.delete(key);
+                mapChanged = true;
+            }
+        } else {
+            value.counter = 0;
+        }
+    }
+
+
+    for (const [key, value] of reportedBeacons.entries()) {
+        if(!visibleBeacons.has(key) && mappings[key] !== undefined) {
+            visibleBeacons.set(key, value);
+            mapChanged = true;
+        }
+    }
+
+    if(mapChanged) {
         updateClients()
     }
 
     res.json({"success": true})
 })
+
+
+
+app.post('/maxCounter', function (req, res) {
+    maxCounter = req.body;
+    res.json({"success": true})
+})
+
+app.post('/minRssi', function (req, res) {
+    min_rssi = req.body;
+    res.json({"success": true})
+})
+
 
 
 
@@ -89,7 +127,7 @@ function updateClients() {
 function sendCurrentData(client) {
 
     let data = [...visibleBeacons].filter(b => {
-        return b.rssi > -50
+        return b.rssi > min_rssi
     }).map(b => {
         return {
             "beacon": b,

@@ -191,7 +191,7 @@
 
     let content = document.getElementById("messages");
 
-    function s() {
+    function listenToServer() {
         const evtSource = new EventSource('/beaconinfo_stream');
 
         evtSource.onmessage = function (e) {
@@ -237,15 +237,22 @@
         })
     }
 
-    s()
+    listenToServer();
 
-    function g() {
+    function show() {
         post("visible_beacons", [{"id": "CA:90:6C:4D:1D:2D", "rssi": -10}, {"id": "zwei"}])
     }
-    function x() {
+    function hide() {
         post("visible_beacons", [])
     }
 
+    function maxCounter(value) {
+        post("maxCounter", value)
+    }
+
+    function minRssi(value) {
+        post("minRssi", value)
+    }
 
     function removeAll() {
         var myNode = document.getElementById("messages");
