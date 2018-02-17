@@ -91,7 +91,7 @@ app.get("/beacons/:id", (req, res, id) => {
 httpServer.listen(port);
 
 
-setInterval(() => {
+/*setInterval(() => {
     visibleBeacons = [{"id": "eins"}, {"id": "zwei"}]
     updateClients()
 },8000)
@@ -101,4 +101,4 @@ setTimeout(() => {
         visibleBeacons = []
         updateClients();
     },8000)
-}, 4000)
+}, 4000)*/

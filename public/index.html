@@ -184,7 +184,7 @@
 
     function post(path, data) {
 // Default options are marked with *
-        return fetch("http://localhost:8000/" + path, {
+        return fetch("/" + path, {
             body: JSON.stringify(data), // must match 'Content-Type' header
             cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
             headers: {
@@ -198,7 +198,7 @@
     }
 
     function s() {
-        const evtSource = new EventSource('http://localhost:8000/beaconinfo_stream');
+        const evtSource = new EventSource('/beaconinfo_stream');
 
         evtSource.onmessage = function (e) {
             let data = JSON.parse(e.data);
