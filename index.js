@@ -94,8 +94,10 @@ app.post('/visible_beacons', function (req, res) {
         if (mappings[key] !== undefined) {
             //this is a relevant Beacon -> update value
             value.counter = 0;
+            if(!activeBeacons.has(key)) {
+                mapChanged = true;
+            }
             activeBeacons.set(key, value);
-            mapChanged = true;
         }
     }
 
