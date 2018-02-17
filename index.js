@@ -34,7 +34,7 @@ let mappings = {
     ]*/
 };
 
-let visibleBeacons = new Map();
+let activeBeacons = new Map();
 const clients = new Set();
 
 
@@ -55,7 +55,7 @@ sseServer.on('connection', function (client) {
 function eqSet(as, bs) {
     if (as.size !== bs.size) return false;
     for (var a of as) {
-        if(![...bs].some(el => el.id === a.id)) return false;
+        if (![...bs].some(el => el.id === a.id)) return false;
     }
     return true;
 }
@@ -69,39 +69,42 @@ app.post('/visible_beacons', function (req, res) {
 
     let mapChanged = false;
 
-    let reportedBeacons = new Map();
-    for(let beacon of req.body)
-        reportedBeacons.set(beacon.id, beacon);
+    let visibleBeacons = new Map();
+    for (let beacon of req.body) {
+        if (beacon.rssi > min_rssi)
+            visibleBeacons.set(beacon.id, beacon); //visibleBeacons.set("hahala", "uiuip"); //
 
-    for(const [key, value] of visibleBeacons.entries()) {
-        if(reportedBeacons[key] === undefined) {
-            if(value.counter === undefined)
+    }
+
+    for (const [key, value] of activeBeacons.entries()) {
+        //check if beacon is still active
+        if (!visibleBeacons.has(key)) {
+            //beacon not active -> check and update counter
+            if (value.counter === undefined)
                 value.counter = 0;
             value.counter++;
-            if(value.counter > maxCounter) {
-                visibleBeacons.delete(key);
+            if (value.counter > maxCounter) {
+                activeBeacons.delete(key);
                 mapChanged = true;
             }
-        } else {
-            value.counter = 0;
         }
     }
 
-
-    for (const [key, value] of reportedBeacons.entries()) {
-        if(!visibleBeacons.has(key) && mappings[key] !== undefined) {
-            visibleBeacons.set(key, value);
+    for (const [key, value] of visibleBeacons.entries()) {
+        if (mappings[key] !== undefined) {
+            //this is a relevant Beacon -> update value
+            value.counter = 0;
+            activeBeacons.set(key, value);
             mapChanged = true;
         }
     }
 
-    if(mapChanged) {
+    if (mapChanged) {
         updateClients()
     }
 
     res.json({"success": true})
 })
-
 
 
 app.post('/maxCounter', function (req, res) {
@@ -115,9 +118,6 @@ app.post('/minRssi', function (req, res) {
 })
 
 
-
-
-
 function updateClients() {
     clients.forEach(client => {
         sendCurrentData(client)
@@ -126,9 +126,7 @@ function updateClients() {
 
 function sendCurrentData(client) {
 
-    let data = [...visibleBeacons].filter(b => {
-        return b.rssi > min_rssi
-    }).map(b => {
+    let data = Array.from(activeBeacons.values()).map(b => {
         return {
             "beacon": b,
             "content": mappings[b.id]
@@ -139,10 +137,8 @@ function sendCurrentData(client) {
 }
 
 
-
-
 app.get("/visible_beacons", (req, res) => {
-    res.json([...visibleBeacons]);
+    res.json([...activeBeacons]);
 })
 
 
