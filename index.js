@@ -69,7 +69,7 @@ app.post('/visible_beacons', function (req, res) {
         visibleBeacons = relevantBeacons;
         updateClients()
     }
-    
+
     res.json({"success": true})
 })
 
@@ -84,7 +84,7 @@ function updateClients() {
 
 function sendCurrentData(client) {
 
-    let data = visibleBeacons.filter(b => {
+    let data = [...visibleBeacons].filter(b => {
         return b.rssi > -50
     }).map(b => {
         return {
@@ -100,7 +100,7 @@ function sendCurrentData(client) {
 
 
 app.get("/visible_beacons", (req, res) => {
-    res.json(visibleBeacons);
+    res.json([...visibleBeacons]);
 })
 
 
