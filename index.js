@@ -2,9 +2,10 @@ var http = require('http'),
     express = require('express'),
     sse = require('sse'),
     bodyParser = require('body-parser'),
+    process = require("process"),
     app = express(),
 
-    port = process.argv[2] ? process.argv[2] : 8000,
+    port = process.env.PORT ? process.env.PORT : 8000,
     docRoot = './public';
 
 app.use(express.static('public'));
