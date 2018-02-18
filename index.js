@@ -190,6 +190,18 @@ app.get("/beacons/:id", (req, res, id) => {
     res.json(mappings[id]);
 })
 
+app.post("/warnings/new", (req, res, id) => {
+    visibleBeacons.forEach(beacon => {
+        if(mappings[beacon.id] === undefined) {
+            mappings[beacon.id] = req.body;
+        }
+        else {
+            if(mappings[beacon.id].filter(contentdata => contentdata === req.body) === undefined)
+                mappings[beacon.id] = [...mappings[beacon.id], req.body];
+        }
+    })
+})
+
 
 httpServer.listen(port);
 console.log("Server is running!")
