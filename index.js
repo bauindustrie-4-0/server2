@@ -15,7 +15,7 @@ app.use(bodyParser.json());
 
 let mappings = {
     "CA:90:6C:4D:1D:2D": [
-        {
+        /*{
             "type": "warning",
             "content": "Kritisch: 47 °C"
         },
@@ -26,8 +26,43 @@ let mappings = {
         {
             "type": "driller",
             "content": "Reparatur notwendig"
+        }*/
+        {
+            "type": "info",
+            "content": "Der Dicke"
         }
-    ]/*,
+    ],
+
+    "EC:9E:89:92:3B:EC": [
+        {
+            "type": "info",
+            "content": "Der Stein"
+        }
+    ],
+
+    "EC:72:F8:E2:F9:87": [
+        {
+            "type": "info",
+            "content": "Der Unbekannte"
+        }
+    ],
+
+    "C9:43:D8:4E:15:23": [
+        {
+            "type": "info",
+            "content": "Der Genervte"
+        }
+    ],
+    "C5:55:49:46:AF:9B": [
+        {
+            "type": "info",
+            "content": "Homer Simpson"
+        }
+    ]
+
+
+
+    /*,
     "zwei": [
         {
             "type": "info",
