@@ -202,6 +202,10 @@ app.post("/warnings/new", (req, res, id) => {
     })
 })
 
+app.get("/warnings", (req, res) => {
+    res.json(mappings)
+})
+
 
 httpServer.listen(port);
 console.log("Server is running!")
