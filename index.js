@@ -11,7 +11,6 @@ var http = require('http'),
 
 app.use(cors());
 app.use(express.static('public'));
-app.use(express.static('admin'));
 app.use(bodyParser.json());
 
 let mappings = {
