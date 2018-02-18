@@ -191,16 +191,14 @@ app.get("/beacons/:id", (req, res, id) => {
 })
 
 app.post("/warnings/new", (req, res, id) => {
-    visibleBeacons.forEach(beacon => {
-        if(mappings[beacon.id] === undefined) {
-            mappings[beacon.id] = req.body;
-        }
-        else {
-            if(mappings[beacon.id].filter(contentdata => contentdata === req.body) === undefined)
-                mappings[beacon.id] = [...mappings[beacon.id], req.body];
+    activeBeacons.forEach(beacon => {
+        if (mappings[beacon.id].filter(contentdata => contentdata === req.body) === undefined) {
+            console.log("warning was added:", req.body);
+            mappings[beacon.id] = [...mappings[beacon.id], req.body];
         }
     })
 })
+
 
 app.get("/warnings", (req, res) => {
     res.json(mappings)
