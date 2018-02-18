@@ -132,7 +132,7 @@ function DoEvent(data)
         });
 }
 
-const evtSource = new EventSource('http://serene-lowlands-55462.herokuapp.com/beaconinfo_stream');
+const evtSource = new EventSource('../beaconinfo_stream');
 
     evtSource.onmessage = function (e) {
         let data = JSON.parse(e.data);
